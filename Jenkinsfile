@@ -11,7 +11,12 @@ node{
     }
     stage('Review'){
         withMaven(maven:'MyMaven'){
-            sh "pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'target/pmd.xml', unHealthy: ''"
+            try{
+                sh 'mvn pmd:pmd'
+            }
+            finally{
+                pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: 'target/pmd.xml', unHealthy: ''
+            }
         }
         
     }
@@ -26,9 +31,13 @@ node{
     }
     stage('Coverage'){
         withMaven(maven:'MyMaven'){
-            sh "cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'target/site/cobertura/coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false"
+            try{
+            sh 'mvn cobertura:cobertura -Dcobertura.report.format=xml'
+            } 
+            finally{
+                cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'target/site/cobertura/coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+            }
         }
-        
     }
     stage('Package'){
         withMaven(maven:'MyMaven'){
